@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Doc Grid Parser</title>
+</head>
+<body>
+  <h1>Google Doc Grid Parser</h1>
+  <p>Check the console for the output.</p>
+
+  <script>
+    // Insert the JavaScript code from earlier here
+    async function fetchGoogleDocTable(docUrl) {
+      try {
+        const response = await fetch(docUrl);
+        if (!response.ok) {
+          throw new Error("Failed to fetch the document");
+        }
+        const text = await response.text();
+        
+        // Extract the text content from the HTML page
+        const docText = new DOMParser().parseFromString(text, 'text/html').body.innerText;
+
+        // Regex pattern to match rows in the format: x-coordinate, character, y-coordinate
+        const rowPattern = /(\d+)\s*(\S)\s*(\d+)/g;
+        const data = [];
+        let match;
+
+        // Extract the rows using the regex
+        while ((match = rowPattern.exec(docText)) !== null) {
+          const x = parseInt(match[1]);
+          const char = match[2];
+          const y = parseInt(match[3]);
+          data.push({ x, char, y });
+        }
+
+        return data;
+
+      } catch (error) {
+        console.error("Error fetching the document:", error);
+        return [];
+      }
+    }
+
+    // Function to generate and print the grid
+    async function printUnicodeGrid(docUrl) {
+      const data = await fetchGoogleDocTable(docUrl);
+
+      if (data.length === 0) {
+        console.log("No table data found.");
+        return;
+      }
+
+      // Determine the grid size by finding the maximum x and y values
+      const maxX = Math.max(...data.map(item => item.x));
+      const maxY = Math.max(...data.map(item => item.y));
+
+      // Initialize a 2D array to represent the grid
+      const grid = Array.from({ length: maxY + 1 }, () => Array(maxX + 1).fill(' '));
+
+      // Fill the grid with the characters at the correct coordinates
+      data.forEach(({ x, char, y }) => {
+        grid[maxY - y][x] = char; // Adjust y to flip the grid vertically
+      });
+
+      // Print the grid row by row
+      grid.forEach(row => {
+        console.log(row.join(' '));
+      });
+    }
+
+    // Run the function with the URL of the Google Doc
+    printUnicodeGrid("https://docs.google.com/document/d/e/2PACX-1vQGUck9HIFCyezsrBSnmENk5ieJuYwpt7YHYEzeNJkIb9OSDdx-ov2nRNReKQyey-cwJOoEKUhLmN9z/pub");
+  </script>
+</body>
+</html>
