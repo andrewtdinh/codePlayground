@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "googleapis": "^148.0.0",
-    "jsdom": "^26.0.0",
-    "node-fetch": "^2.7.0"
-  }
-}
