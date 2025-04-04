@@ -1,11 +1,11 @@
-import random, sys
+import sys
+from random import randint
 
 args = sys.argv
 start = int(args[1]) if len(args) >= 2 else 1
 stop = int(args[2]) if len(args) >= 3 else 10
 
-numbers = list(range(start, stop + 1))
-target = random.choice(numbers)
+target = randint(start, stop)
 guess = None
 tries = 5
 while tries > 0 and guess != target:
